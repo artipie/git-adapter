@@ -6,6 +6,7 @@ package com.artipie.git;
 
 import com.artipie.asto.Storage;
 import com.artipie.http.Slice;
+import com.artipie.http.rq.RequestLineFrom;
 import com.artipie.http.rq.RqParams;
 import com.artipie.http.rt.ByMethodsRule;
 import com.artipie.http.rt.RtRule;
@@ -85,7 +86,8 @@ public final class GitSlice extends Slice.Wrap {
 
         @Override
         public boolean apply(final String line, final Iterable<Entry<String, String>> headers) {
-            return new RqParams(line).value("service").map(srv -> srv.equals(this.name))
+            return new RqParams(new RequestLineFrom(line).uri()).value("service")
+                .map(srv -> srv.equals(this.name))
                 .orElse(false);
         }
     }
