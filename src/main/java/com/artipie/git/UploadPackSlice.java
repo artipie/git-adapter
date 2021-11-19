@@ -32,7 +32,7 @@ final class UploadPackSlice extends Slice.Wrap {
     /**
      * Service routing name.
      */
-    static final RtRule RT_RULE = new GitSlice.ByService("upload-pack");
+    static final RtRule RT_RULE = new GitSlice.ByService("git-upload-pack");
 
     /**
      * New upload pack service.

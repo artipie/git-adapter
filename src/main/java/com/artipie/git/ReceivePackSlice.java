@@ -31,7 +31,7 @@ final class ReceivePackSlice extends Slice.Wrap {
     /**
      * Service routing rule.
      */
-    static final RtRule RT_RULE = new GitSlice.ByService("upload-pack");
+    static final RtRule RT_RULE = new GitSlice.ByService("git-upload-pack");
 
     /**
      * New Slice.
