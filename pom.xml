@@ -27,7 +27,7 @@ SOFTWARE.
   <parent>
     <groupId>com.artipie</groupId>
     <artifactId>ppom</artifactId>
-    <version>1.0.4</version>
+    <version>1.1.0</version>
   </parent>
   <artifactId>git-adapter</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -35,6 +35,18 @@ SOFTWARE.
   <description>An Artipie adapter for git repositories</description>
   <url>https://github.com/artipie/git-adapter</url>
   <inceptionYear>2021</inceptionYear>
+  <developers>
+    <developer>
+      <id>g4s8</id>
+      <name>Kirill Che.</name>
+      <email>g4s8.public@gmail.com</email>
+      <organization>Artipie</organization>
+      <organizationUrl>https://www.artipie.com</organizationUrl>
+      <roles>
+        <role>maintainer</role>
+      </roles>
+    </developer>
+  </developers>
   <licenses>
     <license>
       <name>MIT</name>
@@ -92,7 +104,6 @@ SOFTWARE.
       <groupId>com.artipie</groupId>
       <artifactId>vertx-server</artifactId>
       <version>0.5</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.testcontainers</groupId>
@@ -103,83 +114,29 @@ SOFTWARE.
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <scope>test</scope>
+      <!-- <scope>test</scope> -->
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <scope>test</scope>
+      <!-- <scope>test</scope> -->
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.8.0-alpha2</version>
-      <scope>test</scope>
+      <!-- <scope>test</scope> -->
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.11.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0-M5</version>
-          <configuration combine.children="overwrite">
-            <failIfNoTests>false</failIfNoTests>
-            <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>com.jcabi</groupId>
-        <artifactId>jcabi-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>jcabi-versionalize-packages</id>
-            <phase>none</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-  <profiles>
-    <profile>
-      <id>qulice</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.qulice</groupId>
-            <artifactId>qulice-maven-plugin</artifactId>
-            <version>0.19.4</version>
-            <configuration>
-              <excludes combine.children="append">
-                <exclude>findbugs:.*</exclude>
-                <exclude>duplicatefinder:.*</exclude>
-                <exclude>xml:/src/it/settings.xml</exclude>
-                <exclude>dependencies:.*</exclude>
-                <exclude>checkstyle:.*/src/test/resources/.*</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 </project>

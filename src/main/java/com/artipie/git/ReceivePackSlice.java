@@ -31,27 +31,12 @@ final class ReceivePackSlice extends Slice.Wrap {
     /**
      * Service routing rule.
      */
-    static final RtRule RT_RULE = new GitSlice.ByService("git-upload-pack");
+    static final RtRule RT_RULE = new GitSlice.ByService("git-receive-pack");
 
     /**
      * New Slice.
      */
     ReceivePackSlice() {
         super(new SliceSimple(new RsWithStatus(RsStatus.NOT_IMPLEMENTED)));
-    }
-
-    /**
-     * A slice to return info references as a first phase of {@code receive-pack}.
-     *
-     * @since 1.0
-     */
-    static final class InfoRefSlice extends Slice.Wrap {
-
-        /**
-         * New info refs slice.
-         */
-        InfoRefSlice() {
-            super(new SliceSimple(new RsWithStatus(RsStatus.NOT_IMPLEMENTED)));
-        }
     }
 }
