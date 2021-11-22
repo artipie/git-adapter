@@ -7,11 +7,14 @@ package com.artipie.git;
 import com.artipie.asto.fs.FileStorage;
 import com.artipie.http.slice.LoggingSlice;
 import com.artipie.vertx.VertxSliceServer;
+import com.jcabi.log.Logger;
 import io.vertx.reactivex.core.Vertx;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.logging.Level;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.core.StringContains;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -25,6 +28,9 @@ import org.testcontainers.images.builder.Transferable;
 /**
  * Integration test for Artipie Git server.
  * @since 1.0
+ * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
+ * @checkstyle ExecutableStatementCountCheck (500 lines)
+ * @checkstyle MethodBodyCommentsCheck (500 lines)
  */
 @Disabled
 @SuppressWarnings({"PMD.SystemPrintln", "PMD.TooManyMethods"})
@@ -49,12 +55,31 @@ final class GitITCase {
     @SuppressWarnings("PMD.AvoidDuplicateLiterals")
     void beforeEach(@TempDir final Path tmp) throws Exception {
         this.vertx = Vertx.vertx();
+        // init bare repository with test data
+        final String gitdir = tmp.toAbsolutePath().toString();
+        new Cmd("git", "--git-dir", gitdir, "init", "--bare").exec();
+        final String hash = new Cmd(
+            "git", "--git-dir", gitdir, "hash-object", "-w", "--stdin"
+        ).exec("test\n");
+        new Cmd(
+            "git", "--git-dir", gitdir, "update-index", "--add",
+            "--cacheinfo", "10644", hash, "test.txt"
+        ).exec();
+        final String tree = new Cmd("git", "--git-dir", gitdir, "write-tree").exec();
+        final String commit = new Cmd(
+            "git", "--git-dir", gitdir, "commit-tree", "-m", "test commit", tree
+        ).exec();
+        new Cmd(
+            "git", "--git-dir", gitdir, "update-ref", "refs/heads/master", commit
+        ).exec();
+        Logger.info(this, "initialize git bare repo at '%s'\n", gitdir);
         this.server = new VertxSliceServer(
             this.vertx,
             new LoggingSlice(Level.WARNING, new GitSlice(new FileStorage(tmp)))
         );
         final int port = this.server.start();
         final String base = String.format("http://host.testcontainers.internal:%d", port);
+        Logger.info(this, "Artipie git server started on %s\n", base);
         this.container = new GitContainer()
             .withWorkingDirectory("/w")
             .withEnv("GIT_CURL_VERBOSE", "1")
@@ -70,18 +95,23 @@ final class GitITCase {
 
     @AfterEach
     void tearDown() {
+        System.out.println("stopping artipie server");
         if (this.server != null) {
             this.server.close();
         }
+        System.out.println("closing vertx");
         if (this.vertx != null) {
             this.vertx.close();
         }
+        System.out.println("stopping container");
         if (this.container != null) {
+            this.container.stop();
             this.container.close();
         }
     }
 
     @Test
+    @Disabled
     void pushToRemote() throws Exception {
         final String path = "/tmp/data";
         // @checkstyle MagicNumberCheck (5 lines)
@@ -93,18 +123,20 @@ final class GitITCase {
         this.gitUpdateIndexCache(hash, "test");
         final String tree = this.gitWriteTree();
         final String commit = this.gitCommitTree(tree, "test-commit");
-        this.gitUpdateRef("refs/head/master", commit);
+        this.gitUpdateRef("refs/heads/test", commit);
         this.bash("git push origin refs/head/master");
     }
 
     @Test
+    @Disabled
     void fetchFromRemote() {
         this.bash("git fetch -pvt");
     }
 
     @Test
     void lsRemote() {
-        this.bash("git ls-remote");
+        final String result = this.bash("git ls-remote --refs --quiet --heads");
+        MatcherAssert.assertThat(result, new StringContains("refs/heads/master"));
     }
 
     /**
@@ -154,7 +186,7 @@ final class GitITCase {
 
     /**
      * Executes a command.
-     * @param fmt Command format
+     * @param fmt Command formatStderr
      * @param args Format args
      * @return Stdout
      * @checkstyle ReturnCountCheck (20 lines)

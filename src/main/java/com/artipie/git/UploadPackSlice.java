@@ -40,19 +40,4 @@ final class UploadPackSlice extends Slice.Wrap {
     UploadPackSlice() {
         super(new SliceSimple(new RsWithStatus(RsStatus.NOT_IMPLEMENTED)));
     }
-
-    /**
-     * References info phase for upload pack.
-     *
-     * @since 1.0
-     */
-    static final class InfoRefSlice extends Slice.Wrap {
-
-        /**
-         * Ne info refs slice.
-         */
-        InfoRefSlice() {
-            super(new SliceSimple(new RsWithStatus(RsStatus.NOT_IMPLEMENTED)));
-        }
-    }
 }

@@ -5,6 +5,7 @@
 package com.artipie.git;
 
 import com.artipie.asto.Storage;
+import com.artipie.asto.fs.FileStorage;
 import com.artipie.http.Slice;
 import com.artipie.http.rq.RequestLineFrom;
 import com.artipie.http.rq.RqParams;
@@ -12,7 +13,14 @@ import com.artipie.http.rt.ByMethodsRule;
 import com.artipie.http.rt.RtRule;
 import com.artipie.http.rt.RtRulePath;
 import com.artipie.http.rt.SliceRoute;
+import com.artipie.http.slice.LoggingSlice;
+import com.artipie.vertx.VertxSliceServer;
+import com.jcabi.log.Logger;
+import io.vertx.reactivex.core.Vertx;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 /**
  * Git main entry point.
@@ -21,6 +29,8 @@ import java.util.Map.Entry;
  * </p>
  *
  * @since 1.0
+ * @checkstyle MethodBodyCommentsCheck (500 lines)
+ * @checkstyle ClassDataAbstractionCouplingCheck (500 lines)
  */
 public final class GitSlice extends Slice.Wrap {
 
@@ -35,13 +45,6 @@ public final class GitSlice extends Slice.Wrap {
                 new RtRulePath(
                     new RtRule.All(
                         ReceivePackSlice.RT_RULE,
-                        ByMethodsRule.Standard.GET
-                    ),
-                    new ReceivePackSlice.InfoRefSlice()
-                ),
-                new RtRulePath(
-                    new RtRule.All(
-                        ReceivePackSlice.RT_RULE,
                         ByMethodsRule.Standard.POST
                     ),
                     new ReceivePackSlice()
@@ -49,19 +52,47 @@ public final class GitSlice extends Slice.Wrap {
                 new RtRulePath(
                     new RtRule.All(
                         UploadPackSlice.RT_RULE,
-                        ByMethodsRule.Standard.GET
-                    ),
-                    new UploadPackSlice.InfoRefSlice()
-                ),
-                new RtRulePath(
-                    new RtRule.All(
-                        UploadPackSlice.RT_RULE,
                         ByMethodsRule.Standard.POST
                     ),
                     new UploadPackSlice()
+                ),
+                new RtRulePath(
+                    new RtRule.All(
+                        new RtRule.ByPath("/info/refs"),
+                        ByMethodsRule.Standard.GET
+                    ),
+                    new InfoRefsSlice(
+                        "git/artipie",
+                        new TreeSet<>(
+                            Arrays.asList(
+                                "ls-refs=unborn",
+                                "fetch=shallow wait-for-done filter"
+                            )
+                        )
+                    )
                 )
             )
         );
+    }
+
+    /**
+     * Main entry point for debugging with git.
+     * @param args First arg is a path to git dir
+     */
+    public static void main(final String... args) {
+        final String repo;
+        if (args.length > 0) {
+            repo = args[0];
+        } else {
+            repo = "/tmp/artipie-git";
+        }
+        final VertxSliceServer server = new VertxSliceServer(
+            Vertx.vertx(),
+            new LoggingSlice(new GitSlice(new FileStorage(Paths.get(repo)))),
+            8080
+        );
+        final int port = server.start();
+        Logger.info(GitSlice.class, "Artipie git server started at http://localhost:%d", port);
     }
 
     /**
