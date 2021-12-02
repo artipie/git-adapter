@@ -38,9 +38,9 @@ final class TmpResource {
             Throwable err = thr;
             try {
                 for (final Path child : Files.walk(path).collect(Collectors.toList())) {
-                        Files.delete(child);
+//                        Files.delete(child);
                 }
-                Files.delete(path);
+//                Files.delete(path);
             } catch (IOException iex) {
                 if (err != null) {
                     err.addSuppressed(iex);

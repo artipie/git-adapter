@@ -50,7 +50,7 @@ final class LsRefsSlice implements Slice {
                             final Repository repo = new FileRepository(tmp.toAbsolutePath().toFile());
                             ObjectId head = repo.resolve("HEAD");
                             if (head == null) {
-                                repo.create();
+                                repo.create(true);
                                 head = repo.resolve("HEAD");
                             }
                             final PacketLineOut out = new PacketLineOut(baos);
@@ -58,13 +58,13 @@ final class LsRefsSlice implements Slice {
                             adv.init(repo);
                             adv.setDerefTags(true);
                             adv.send(repo.getRefDatabase().getRefsByPrefix("refs/"));
-                            
+                            out.end();
                         } catch (final IOException iex) {
                             throw new ArtipieException(iex);
                         }
                         return new Content.From(baos.toByteArray());
                     }
-                ).thenApply(data -> new RsWithBody(data))
+                ).thenApply(RsWithBody::new)
             )
         );
     }
