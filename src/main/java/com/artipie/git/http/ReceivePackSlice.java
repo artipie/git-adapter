@@ -2,7 +2,7 @@
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
  * https://github.com/artipie/git-adapter/LICENSE.txt
  */
-package com.artipie.git;
+package com.artipie.git.http;
 
 import com.artipie.http.Slice;
 import com.artipie.http.rs.RsStatus;

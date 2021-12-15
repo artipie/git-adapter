@@ -67,7 +67,7 @@ public final class TmpResource {
      * @param <T> Result type
      * @return Operation result
      */
-    <T> CompletableFuture<? extends T> with(
+    public <T> CompletableFuture<? extends T> with(
         final Function<? super Storage, ? extends CompletionStage<T>> func
     ) {
         return CompletableFuture.supplyAsync(this.factory).thenCompose(
