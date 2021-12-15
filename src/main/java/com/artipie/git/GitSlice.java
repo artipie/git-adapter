@@ -54,7 +54,14 @@ public final class GitSlice extends Slice.Wrap {
                         UploadPackSlice.RT_RULE,
                         ByMethodsRule.Standard.POST
                     ),
-                    new UploadPackSlice()
+                    new UploadPackSlice(storage)
+                ),
+                new RtRulePath(
+                    new RtRule.All(
+                        ByMethodsRule.Standard.POST,
+                        new RtRule.ByPath("/git-upload-pack")
+                    ),
+                    new UploadPackSlice(storage)
                 ),
                 new RtRulePath(
                     new RtRule.All(

@@ -19,6 +19,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 import org.testcontainers.Testcontainers;
 import org.testcontainers.containers.Container;
@@ -32,8 +34,11 @@ import org.testcontainers.images.builder.Transferable;
  * @checkstyle ExecutableStatementCountCheck (500 lines)
  * @checkstyle MethodBodyCommentsCheck (500 lines)
  */
-@Disabled
 @SuppressWarnings({"PMD.SystemPrintln", "PMD.TooManyMethods"})
+@DisabledOnOs(
+    value = OS.WINDOWS,
+    disabledReason = "this test depends on alpine:3.14 Linux Docker container"
+)
 final class GitITCase {
 
     /**
@@ -58,6 +63,8 @@ final class GitITCase {
         // init bare repository with test data
         final String gitdir = tmp.toAbsolutePath().toString();
         new Cmd("git", "--git-dir", gitdir, "init", "--bare").exec();
+        new Cmd("git", "--git-dir", gitdir, "config", "--local", "user.name", "host@test.com");
+        new Cmd("git", "--git-dir", gitdir, "config", "--local", "user.name", "Host");
         final String hash = new Cmd(
             "git", "--git-dir", gitdir, "hash-object", "-w", "--stdin"
         ).exec("test\n");
@@ -75,7 +82,7 @@ final class GitITCase {
         Logger.info(this, "initialize git bare repo at '%s'\n", gitdir);
         this.server = new VertxSliceServer(
             this.vertx,
-            new LoggingSlice(Level.WARNING, new GitSlice(new FileStorage(tmp)))
+            new LoggingSlice(Level.INFO, new GitSlice(new FileStorage(tmp)))
         );
         final int port = this.server.start();
         final String base = String.format("http://host.testcontainers.internal:%d", port);
@@ -95,15 +102,12 @@ final class GitITCase {
 
     @AfterEach
     void tearDown() {
-        System.out.println("stopping artipie server");
         if (this.server != null) {
             this.server.close();
         }
-        System.out.println("closing vertx");
         if (this.vertx != null) {
             this.vertx.close();
         }
-        System.out.println("stopping container");
         if (this.container != null) {
             this.container.stop();
             this.container.close();
@@ -134,8 +138,8 @@ final class GitITCase {
     }
 
     @Test
-    void lsRemote() {
-        final String result = this.bash("git ls-remote --refs --quiet --heads");
+    void lsRemote()throws Exception {
+        final String result = this.bash("git ls-remote --quiet --heads --refs");
         MatcherAssert.assertThat(result, new StringContains("refs/heads/master"));
     }
 
@@ -208,13 +212,14 @@ final class GitITCase {
         } catch (final IOException err) {
             throw new UncheckedIOException("Bash command failed in container", err);
         }
-        if (!exec.getStderr().equals("")) {
-            throw new IllegalStateException(exec.getStderr());
-        }
         if (exec.getExitCode() != 0) {
             throw new IllegalStateException(
-                String.format("command '%s' returned %d code", command, exec.getExitCode())
+                String.format("command '%s' returned %d code", command, exec.getExitCode()),
+                new IllegalStateException(exec.getStderr())
             );
+        }
+        if (!exec.getStderr().isEmpty()) {
+            System.out.printf("ERROR: %s\n", exec.getStderr());
         }
         System.out.println(exec.getStdout());
         return exec.getStdout().trim();
@@ -226,7 +231,7 @@ final class GitITCase {
      */
     private static class GitContainer extends GenericContainer<GitContainer> {
         GitContainer() {
-            super("alpine:3.11");
+            super("alpine:3.14");
         }
     }
 }
