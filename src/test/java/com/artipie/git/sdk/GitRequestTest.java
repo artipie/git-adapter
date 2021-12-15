@@ -2,8 +2,9 @@
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
  * https://github.com/artipie/git-adapter/LICENSE.txt
  */
-package com.artipie.git;
+package com.artipie.git.sdk;
 
+import java.util.Arrays;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test;
  *
  * @since 1.0
  */
-class GitRequestTest {
+final class GitRequestTest {
 
     @Test
     void parseParts() {
@@ -42,7 +43,7 @@ class GitRequestTest {
     @Test
     void parseCommand() {
         MatcherAssert.assertThat(
-            GitRequest.parse("0010command=foo\n0000").command().get(),
+            new GitRequest(Arrays.asList("command=foo")).command().get(),
             Matchers.equalTo("foo")
         );
     }

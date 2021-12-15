@@ -2,7 +2,7 @@
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
  * https://github.com/artipie/git-adapter/LICENSE.txt
  */
-package com.artipie.git;
+package com.artipie.git.sdk;
 
 import com.artipie.ArtipieException;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * @checkstyle MagicNumberCheck (300 lines)
  * @checkstyle MethodBodyCommentsCheck (300 lines)
  */
-final class GitRequest {
+public final class GitRequest {
     /**
      * Request lines.
      */
@@ -37,7 +37,7 @@ final class GitRequest {
      * Parse command.
      * @return Command if found
      */
-    Optional<String> command() {
+    public Optional<String> command() {
         return this.lines.stream().filter(line -> line.startsWith("command="))
             .map(line -> line.substring(8)).findFirst().map(String::trim);
     }
@@ -46,7 +46,7 @@ final class GitRequest {
      * Parsed parts.
      * @return Immutable list
      */
-    List<String> parts() {
+    public List<String> parts() {
         return Collections.unmodifiableList(this.lines);
     }
 
@@ -54,8 +54,10 @@ final class GitRequest {
      * Parse raw request data.
      * @param raw Request data
      * @return Request data accessor
+     * @throws ArtipieException In case of request is invalid
      */
-    static GitRequest parse(final String raw) {
+    @SuppressWarnings("PMD.ProhibitPublicStaticMethods")
+    public static GitRequest parse(final String raw) {
         String rest = raw;
         final List<String> lines = new ArrayList<>(10);
         while (!rest.isEmpty()) {

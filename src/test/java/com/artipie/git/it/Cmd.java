@@ -2,7 +2,7 @@
  * The MIT License (MIT) Copyright (c) 2020-2021 artipie.com
  * https://github.com/artipie/git-adapter/LICENSE.txt
  */
-package com.artipie.git;
+package com.artipie.git.it;
 
 import com.artipie.asto.misc.UncheckedConsumer;
 import com.jcabi.log.Logger;
