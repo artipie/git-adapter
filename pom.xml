@@ -91,7 +91,7 @@ SOFTWARE.
     <dependency>
       <groupId>com.artipie</groupId>
       <artifactId>http</artifactId>
-      <version>v0.26.1</version>
+      <version>v1.1.2-d</version>
     </dependency>
     <!-- JGit -->
     <dependency>
