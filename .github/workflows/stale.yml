@@ -12,8 +12,8 @@ jobs:
     - uses: actions/stale@v3
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
-        stale-issue-message: 'Issue is stale, CC: @g4s8'
-        stale-pr-message: 'PR is stale, CC: @g4s8'
+        stale-issue-message: 'Issue is stale, CC: @dgarus'
+        stale-pr-message: 'PR is stale, CC: @dgarus'
         stale-issue-label: 'stale'
         stale-pr-label: 'stale'
         days-before-issue-close: -1
